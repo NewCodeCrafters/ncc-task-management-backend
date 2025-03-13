@@ -30,11 +30,15 @@ class SignupView(views.APIView):
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            refresh = RefreshToken.for_user(user)  # ✅ Generate tokens
+
             return Response({
                 "message": "Signup successful",
                 "user_id": user.id,
-                "first_name": user.first_name,  # ✅ Added first name
-                "last_name": user.last_name,    # ✅ Added last name
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "access_token": str(refresh.access_token),  # ✅ Added access token
+                "refresh_token": str(refresh),  # ✅ Added refresh token
             }, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -53,14 +57,14 @@ class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.validated_data["user"]  # ✅ Fix: Extract user correctly
-            refresh = RefreshToken.for_user(user)
+            user = serializer.validated_data["user"]
+            refresh = RefreshToken.for_user(user)  # ✅ Generate tokens
 
             return Response({
                 "message": "Login successful",
                 "user_id": user.id,
-                "token": str(refresh.access_token),
+                "access_token": str(refresh.access_token),  # ✅ Added access token
+                "refresh_token": str(refresh),  # ✅ Added refresh token
             }, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
