@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\USER\Documents\showtime\ncc-task-management-backend\venv
+set VIRTUAL_ENV=c:\Users\USER\Documents\showtime\ncc-task-management-backend\venv
 
 if not defined PROMPT set PROMPT=$P$G
 

@@ -5,6 +5,16 @@ from django.contrib.auth.models import User
 from .serializers import SignupSerializer, LoginSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
+
+
+User = get_user_model() 
+
+
 
 class SignupView(views.APIView):
     @swagger_auto_schema(
@@ -20,7 +30,13 @@ class SignupView(views.APIView):
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            return Response({"message": "Signup successful", "user_id": user.id}, status=status.HTTP_201_CREATED)
+            return Response({
+                "message": "Signup successful",
+                "user_id": user.id,
+                "first_name": user.first_name,  # ✅ Added first name
+                "last_name": user.last_name,    # ✅ Added last name
+            }, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -37,6 +53,14 @@ class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
-            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+            user = serializer.validated_data["user"]  # ✅ Fix: Extract user correctly
+            refresh = RefreshToken.for_user(user)
+
+            return Response({
+                "message": "Login successful",
+                "user_id": user.id,
+                "token": str(refresh.access_token),
+            }, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
