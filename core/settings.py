@@ -1,4 +1,8 @@
 from datetime import timedelta
+import os
+
+
+
 
 """
 Django settings for core project.
@@ -27,7 +31,13 @@ SECRET_KEY = 'django-insecure-47i*h3c4edw+raq4xi!8k23@qds+brm$g0ct$%!8)@j!s1boj6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "ncc-task-management-backend.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
+
 
 
 # Application definition
