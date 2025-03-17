@@ -65,6 +65,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware'
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -79,6 +80,10 @@ ROOT_URLCONF = 'core.urls'
 CORS_ALLOWED_ORIGINS = [
     'https://google.com',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True  
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
