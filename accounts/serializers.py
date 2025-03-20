@@ -42,7 +42,7 @@ class LoginSerializer(serializers.Serializer):
 
         user = authenticate(username=email, password=password)  # ✅ Ensure your authentication method uses "username=email"
         if user is None:
-            raise serializers.ValidationError({"non_field_errors": ["Invalid credentials."]})
+            raise serializers.ValidationError({"non_field_errors": ["incorrect Email or Password."]})
 
         attrs["user"] = user  # ✅ Store user in attrs
         return attrs  # ✅ Return attrs, not a dictionary
