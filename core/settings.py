@@ -292,8 +292,8 @@ settings.configure(
 send_mail(
     'Test Email',
     'This is a test email from Django.',
-    'ore@gmail.com',  # Sender
-    ['davidonyekachi29@gmail.com'],  # Receiver
+    'davidonyekachi29@gmail.com',  # Sender
+    ['ore@gmail.com'],  # Receiver
     fail_silently=False,
 )
 
