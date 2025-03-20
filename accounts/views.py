@@ -73,15 +73,3 @@ class LoginView(APIView):
 
 
 
-class UserDetailView(views.APIView):
-    permission_classes = [IsAuthenticated]
-
-    @swagger_auto_schema(
-        operation_summary="Retrieve User Info",
-        operation_description="Returns the authenticated user's details.",
-        responses={200: UsersSerializer()}
-    )
-    def get(self, request):
-        serializer = UsersSerializer(request.user)
-        return Response(serializer.data)
-
