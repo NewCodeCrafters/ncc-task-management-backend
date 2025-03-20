@@ -50,7 +50,7 @@ class SignupView(views.APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LoginView(APIView):
+class LoginView(views.APIView):
     @swagger_auto_schema(
         request_body=LoginSerializer,
         responses={
@@ -76,7 +76,13 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-class SendOTPView(APIView):
+class SendOTPView(views.APIView):
+    """Send an OTP to the user's email for password reset."""
+
+    @swagger_auto_schema(
+        request_body=SendOTPSerializer,
+        responses={200: openapi.Response("OTP sent successfully")},
+    )
     def post(self, request):
         serializer = SendOTPSerializer(data=request.data)
         if serializer.is_valid():
@@ -99,17 +105,28 @@ class SendOTPView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class VerifyOTPView(APIView):
+class VerifyOTPView(views.APIView):
+    """Verify the OTP sent to the user's email."""
+
+    @swagger_auto_schema(
+        request_body=VerifyOTPSerializer,
+        responses={200: openapi.Response("OTP verified successfully")},
+    )
     def post(self, request):
         serializer = VerifyOTPSerializer(data=request.data)
         if serializer.is_valid():
-            # OTP is valid, return success response
             return Response({"message": "OTP verified successfully"}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ResetPasswordView(APIView):
+class ResetPasswordView(views.APIView):
+    """Reset the user's password after OTP verification."""
+
+    @swagger_auto_schema(
+        request_body=ResetPasswordSerializer,
+        responses={200: openapi.Response("Password reset successful")},
+    )
     def post(self, request):
         serializer = ResetPasswordSerializer(data=request.data)
         if serializer.is_valid():
@@ -117,4 +134,3 @@ class ResetPasswordView(APIView):
             return Response({"message": "Password reset successful"}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
