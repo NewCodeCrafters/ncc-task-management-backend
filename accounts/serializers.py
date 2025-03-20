@@ -3,6 +3,7 @@ from .models import LoginLog, SignupLog
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 User = get_user_model()
+from .models import OTP
 
 class SignupSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required=True)  # ✅ Added first_name
@@ -47,17 +48,66 @@ class LoginSerializer(serializers.Serializer):
         attrs["user"] = user  # ✅ Store user in attrs
         return attrs  # ✅ Return attrs, not a dictionary
 
-
-
-        
-        
-
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = LoginLog
         fields = '__all__'
 
+
+class SendOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        if not User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("User with this email does not exist.")
+        return value
+
+
+class VerifyOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField(max_length=6)
+
+    def validate(self, data):
+        email = data.get("email")
+        otp_code = data.get("otp")
+
+        try:
+            user = User.objects.get(email=email)
+            otp = OTP.objects.filter(user=user, code=otp_code).last()
+
+            if not otp or not otp.is_valid():
+                raise serializers.ValidationError("Invalid or expired OTP.")
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found.")
+
+        return data
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    new_password = serializers.CharField(write_only=True, min_length=6)
+
+    def validate_email(self, value):
+        if not User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("User with this email does not exist.")
+        return value
+
+    def validate(self, data):
+        email = data.get("email")
+        new_password = data.get("new_password")
+        user = User.objects.get(email=email)
+
+        if user.check_password(new_password):
+            raise serializers.ValidationError("New password cannot be the same as the old password.")
+
+        return data
+
+    def save(self):
+        email = self.validated_data["email"]
+        new_password = self.validated_data["new_password"]
+        user = User.objects.get(email=email)
+        user.set_password(new_password)
+        user.save()
 
 
         

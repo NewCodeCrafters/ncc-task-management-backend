@@ -2,6 +2,7 @@ from django.db import models
 import uuid
 from django.utils.timezone import now
 from django.contrib.auth import get_user_model
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -26,7 +27,13 @@ class LoginLog(models.Model):
     
 
 
+class OTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    def is_valid(self):
+        return now() - self.created_at < timedelta(minutes=5)
     
  
        
