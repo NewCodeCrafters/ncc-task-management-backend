@@ -2,13 +2,14 @@ from rest_framework import status
 from rest_framework import response, status, permissions, views
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
-from .serializers import SignupSerializer, LoginSerializer
+from .serializers import SignupSerializer, LoginSerializer, UsersSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
+from rest_framework.permissions import IsAuthenticated
 
 
 
@@ -68,3 +69,19 @@ class LoginView(APIView):
             }, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+
+class UserDetailView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_summary="Retrieve User Info",
+        operation_description="Returns the authenticated user's details.",
+        responses={200: UsersSerializer()}
+    )
+    def get(self, request):
+        serializer = UsersSerializer(request.user)
+        return Response(serializer.data)
+
