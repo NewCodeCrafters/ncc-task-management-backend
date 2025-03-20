@@ -264,6 +264,42 @@ SECURE_HSTS_PRELOAD = True
 
 
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_SSL = False
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'davidonyekachi29@gmail.com' 
+EMAIL_HOST_PASSWORD = 'zoinker4k$#' 
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+
+# Store emails inside the project directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'emails')
+
+
+from django.core.mail import send_mail
+from django.conf import settings
+
+# Ensure settings are configured
+settings.configure(
+    EMAIL_BACKEND='django.core.mail.backends.filebased.EmailBackend',
+    EMAIL_FILE_PATH=os.path.join(os.getcwd(), 'emails')  # Save emails in 'emails/' directory
+)
+send_mail(
+    'Test Email',
+    'This is a test email from Django.',
+    'davidonyekachi29@gmail.com',  # Sender
+    ['ore@gmail.com'],  # Receiver
+    fail_silently=False,
+)
+
+
+
+
 
 
 
