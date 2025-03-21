@@ -37,7 +37,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['ncc-task-management-backend.onrender.com', '127.0.0.1:8000', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['ncc-task-management-backend.onrender.com', '127.0.0.1:8000']
 database_url = os.environ.get("DATABASE_URL")
 
 
@@ -61,7 +61,6 @@ INSTALLED_APPS = [
     'djoser',
     'drf_yasg',
     "corsheaders",
-    'rest_framework.authtoken',
 
 ]
 
@@ -200,15 +199,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',  # Allow access to API docs
     ),
 }
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-}
-
 
 SWAGGER_SETTINGS = {
     'LOGIN_URL': None,  # Disable login redirection
