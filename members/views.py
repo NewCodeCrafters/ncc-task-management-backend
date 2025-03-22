@@ -1,7 +1,6 @@
-from django.shortcuts import render
-from rest_framework import response, status, permissions, views
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework import response, status, permissions, views
 from rest_framework.views import APIView
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -10,7 +9,7 @@ from .serializers import TaskSerializer, InvitationSerializer
 from django.core.mail import send_mail
 from django.conf import settings
 
-class TaskListCreateView(views.APIView):
+class TaskListCreateView(APIView):
     @swagger_auto_schema(responses={200: TaskSerializer(many=True)})
     def get(self, request):
         tasks = Task.objects.all()
@@ -21,11 +20,11 @@ class TaskListCreateView(views.APIView):
     def post(self, request):
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(created_by=request.user)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class InvitationCreateView(views.APIView):
+class InvitationCreateView(APIView):
     @swagger_auto_schema(request_body=InvitationSerializer, responses={201: InvitationSerializer})
     def post(self, request):
         serializer = InvitationSerializer(data=request.data)
@@ -40,7 +39,7 @@ class InvitationCreateView(views.APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class InvitationRespondView(views.APIView):
+class InvitationRespondView(APIView):
     @swagger_auto_schema(request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
@@ -59,4 +58,3 @@ class InvitationRespondView(views.APIView):
             invitation.save()
             return Response({'message': f'Invitation {status_value}'}, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid status'}, status=status.HTTP_400_BAD_REQUEST)
-
