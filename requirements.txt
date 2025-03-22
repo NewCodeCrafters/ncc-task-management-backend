@@ -40,4 +40,3 @@ uritemplate==4.1.1
 urllib3==2.2.3
 waitress==3.0.2
 whitenoise==6.8.2
-django-otp==0.3

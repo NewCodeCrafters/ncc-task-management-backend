@@ -15,7 +15,6 @@ from django.conf import settings
 from .models import OTP
 from .serializers import SendOTPSerializer, VerifyOTPSerializer, ResetPasswordSerializer
 import random
-from .forms import AuthenticationFormWithInactiveUsersOkay
 
 
 
@@ -52,7 +51,6 @@ class SignupView(views.APIView):
 
 
 class LoginView(views.APIView):
-    authentication_form = AuthenticationFormWithInactiveUsersOkay
     @swagger_auto_schema(
         request_body=LoginSerializer,
         responses={
