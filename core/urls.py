@@ -35,7 +35,6 @@ urlpatterns = [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
     path('accounts/', include('accounts.urls')),
-    path('members/', include('members.urls')),
     
     
 ]
