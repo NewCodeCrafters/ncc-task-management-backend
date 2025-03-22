@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import TaskListCreateView, TaskInviteView
+from .views import TaskListCreateView, InvitationCreateView, InvitationRespondView
 
 urlpatterns = [
-    path("tasks/", TaskListCreateView.as_view(), name="task-list-create"),
-    path("invites/", TaskInviteView.as_view(), name="invite-list-create"),
-    path("invites/<int:invite_id>/", TaskInviteView.as_view(), name="invite-update"),
+    path('tasks/', TaskListCreateView.as_view(), name='task-list-create'),
+    path('invite/', InvitationCreateView.as_view(), name='invite-create'),
+    path('invite/<int:id>/', InvitationRespondView.as_view(), name='invite-respond'),
 ]

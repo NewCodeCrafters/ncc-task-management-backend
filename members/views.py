@@ -1,31 +1,23 @@
 from django.shortcuts import render
+from rest_framework import response, status, permissions, views
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework import response, status, permissions, views
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .models import Task, TaskInvite
-from .serializers import TaskSerializer, TaskInviteSerializer
+from .models import Task, Invitation
+from .serializers import TaskSerializer, InvitationSerializer
+from django.core.mail import send_mail
+from django.conf import settings
 
-class TaskListCreateView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    @swagger_auto_schema(
-        operation_description="Retrieve all tasks created by the authenticated user",
-        responses={200: TaskSerializer(many=True)}
-    )
+class TaskListCreateView(views.APIView):
+    @swagger_auto_schema(responses={200: TaskSerializer(many=True)})
     def get(self, request):
-        tasks = Task.objects.filter(created_by=request.user)
+        tasks = Task.objects.all()
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data)
-
-    @swagger_auto_schema(
-        operation_description="Create a new task",
-        request_body=TaskSerializer,
-        responses={201: TaskSerializer, 400: "Bad Request"},
-    )
+    
+    @swagger_auto_schema(request_body=TaskSerializer, responses={201: TaskSerializer})
     def post(self, request):
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
@@ -33,48 +25,38 @@ class TaskListCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class TaskInviteView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    @swagger_auto_schema(
-        operation_description="Create a new task invite",
-        request_body=TaskInviteSerializer,
-        responses={201: TaskInviteSerializer, 400: "Bad Request"},
-    )
+class InvitationCreateView(views.APIView):
+    @swagger_auto_schema(request_body=InvitationSerializer, responses={201: InvitationSerializer})
     def post(self, request):
-        serializer = TaskInviteSerializer(data=request.data)
+        serializer = InvitationSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(invited_by=request.user)
+            invitation = serializer.save(invited_by=request.user)
+            send_mail(
+                subject=f"Invitation to join task: {invitation.task.title}",
+                message=f"You have been invited to participate in the task '{invitation.task.title}'.",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[invitation.email]
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @swagger_auto_schema(
-        operation_description="Update an invite status (Accept/Decline)",
-        manual_parameters=[
-            openapi.Parameter("invite_id", openapi.IN_PATH, description="Invite ID", type=openapi.TYPE_INTEGER),
-        ],
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={"status": openapi.Schema(type=openapi.TYPE_STRING, example="accepted")},
-        ),
-        responses={200: TaskInviteSerializer, 404: "Not Found"},
-    )
-    def patch(self, request, invite_id):
+class InvitationRespondView(views.APIView):
+    @swagger_auto_schema(request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'status': openapi.Schema(type=openapi.TYPE_STRING, enum=['accepted', 'rejected'])
+        }
+    ), responses={200: "Invitation response updated", 400: "Invalid status", 404: "Invitation not found"})
+    def patch(self, request, id):
         try:
-            invite = TaskInvite.objects.get(id=invite_id, invitee=request.user)
-        except TaskInvite.DoesNotExist:
-            return Response({"error": "Invite not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        invite.status = request.data.get("status", invite.status)
-        invite.save()
-        return Response(TaskInviteSerializer(invite).data)
-
-    @swagger_auto_schema(
-        operation_description="Get all invites for the authenticated user",
-        responses={200: TaskInviteSerializer(many=True)}
-    )
-    def get(self, request):
-        invites = TaskInvite.objects.filter(invitee=request.user)
-        serializer = TaskInviteSerializer(invites, many=True)
-        return Response(serializer.data)
+            invitation = Invitation.objects.get(id=id)
+        except Invitation.DoesNotExist:
+            return Response({'error': 'Invitation not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        status_value = request.data.get('status')
+        if status_value in ['accepted', 'rejected']:
+            invitation.status = status_value
+            invitation.save()
+            return Response({'message': f'Invitation {status_value}'}, status=status.HTTP_200_OK)
+        return Response({'error': 'Invalid status'}, status=status.HTTP_400_BAD_REQUEST)
 
