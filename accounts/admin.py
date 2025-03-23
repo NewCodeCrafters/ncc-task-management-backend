@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from django.contrib import admin
-from .models import SignupLog, LoginLog
+from .models import SignupLog, LoginLog, OTP
 
 @admin.register(SignupLog)
 class SignupLogAdmin(admin.ModelAdmin):
@@ -15,3 +15,6 @@ class LoginLogAdmin(admin.ModelAdmin):
     readonly_fields = ("login_time",)  # Make login_time read-only
 
 
+@admin.register(OTP)
+class OTPAdmin(admin.ModelAdmin):
+    list_display = ('user', 'otp', 'created_at')

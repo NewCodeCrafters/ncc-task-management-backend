@@ -36,15 +36,15 @@ class SignupView(views.APIView):
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            refresh = RefreshToken.for_user(user)  # ✅ Generate tokens
+            refresh = RefreshToken.for_user(user)  
 
             return Response({
                 "message": "Signup successful",
                 "user_id": user.id,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
-                "access_token": str(refresh.access_token),  # ✅ Added access token
-                "refresh_token": str(refresh),  # ✅ Added refresh token
+                "access_token": str(refresh.access_token),  
+                "refresh_token": str(refresh),  
             }, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -64,13 +64,13 @@ class LoginView(views.APIView):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data["user"]
-            refresh = RefreshToken.for_user(user)  # ✅ Generate tokens
+            refresh = RefreshToken.for_user(user)  
 
             return Response({
                 "message": "Login successful",
                 "user_id": user.id,
-                "access_token": str(refresh.access_token),  # ✅ Added access token
-                "refresh_token": str(refresh),  # ✅ Added refresh token
+                "access_token": str(refresh.access_token),
+                "refresh_token": str(refresh),  
             }, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -87,11 +87,19 @@ class SendOTPView(views.APIView):
         serializer = SendOTPSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data["email"]
-            user = User.objects.get(email=email)
-            otp_code = random.randint(100000, 999999)  # 6-digit OTP
-            OTP.objects.create(user=user, code=otp_code)
 
-            # Send OTP via email
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                return Response({"error": "User with this email does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+            otp_code = random.randint(111111, 999999) 
+
+            # Check if OTP already exists for the user
+            otp_entry, created = OTP.objects.get_or_create(user=user)
+            otp_entry.otp = otp_code  # Update OTP code
+            otp_entry.save()
+
             send_mail(
                 "Your OTP Code",
                 f"Your OTP code is {otp_code}",
@@ -103,7 +111,6 @@ class SendOTPView(views.APIView):
             return Response({"message": "OTP sent to email"}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class VerifyOTPView(views.APIView):
     """Verify the OTP sent to the user's email."""

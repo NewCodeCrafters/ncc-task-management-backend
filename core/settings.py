@@ -37,7 +37,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['ncc-task-management-backend.onrender.com', '127.0.0.1:8000']
+ALLOWED_HOSTS = []
 database_url = os.environ.get("DATABASE_URL")
 
 
@@ -197,12 +197,12 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',  # Allow access to API docs
+        'rest_framework.permissions.AllowAny',  
     ),
 }
 
 SWAGGER_SETTINGS = {
-    'LOGIN_URL': None,  # Disable login redirection
+    'LOGIN_URL': None,  
     'LOGOUT_URL': None,
 }
 
@@ -255,12 +255,12 @@ DJOSER = {
 }
 
 
-SECURE_HSTS_SECONDS = True
-SECURE_SSL_REDIRECT = True
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
+# SECURE_HSTS_SECONDS = True
+# SECURE_SSL_REDIRECT = True
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
 
 
 
@@ -282,21 +282,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'emails')
 
 
-from django.core.mail import send_mail
-from django.conf import settings
-
-# Ensure settings are configured
-settings.configure(
-    EMAIL_BACKEND='django.core.mail.backends.filebased.EmailBackend',
-    EMAIL_FILE_PATH=os.path.join(os.getcwd(), 'emails')  # Save emails in 'emails/' directory
-)
-send_mail(
-    'Test Email',
-    'This is a test email from Django.',
-    'davidonyekachi29@gmail.com',  # Sender
-    ['ore@gmail.com'],  # Receiver
-    fail_silently=False,
-)
 
 
 
