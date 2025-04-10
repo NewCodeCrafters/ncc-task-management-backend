@@ -25,7 +25,7 @@ class Task(models.Model):
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='in_progress')
     assignee = models.EmailField()
-    image = models.ImageField(upload_to='task_images/', null=True, blank=True)
+    image = models.ImageField()
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
