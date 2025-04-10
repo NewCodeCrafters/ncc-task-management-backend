@@ -21,7 +21,7 @@ class Task(models.Model):
     description = models.TextField(blank=True, null=True)
     project_name = models.CharField(max_length=255)
     due_date = models.DateTimeField()
-    time_estimate = models.DurationField(help_text="Estimated time to complete the task (hh:mm:ss)")
+    time_estimate = models.DateTimeField()
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='in_progress')
     assignee = models.EmailField()
